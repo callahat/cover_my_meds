@@ -25,7 +25,12 @@ module CoverMyMeds
         state: state,
         v: version
       )
-      data = forms_request GET, params: params
+      data = begin
+               forms_request GET, params: params
+             rescue CoverMyMeds::Error::HTTPError => e
+               RestClient.log = Logger.new(STDOUT)
+               forms_request GET, params: params
+             end
       data['forms'].map { |d| Hashie::Mash.new(d) }
     end
   end

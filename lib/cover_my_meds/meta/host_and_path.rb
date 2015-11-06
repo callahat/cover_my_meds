@@ -49,7 +49,13 @@ module CoverMyMeds
           proxy_args = [ method, host_name, full_path, params, auth ]
           fail ArgumentError, "method, host_name or full_path can not be nil" if proxy_args.take(3).any?(&:nil?)
 
-          request(*proxy_args.compact, &block)
+          begin
+            request(*proxy_args.compact, &block)
+          rescue CoverMyMeds::Error::HTTPError => e
+            RestClient.log = Logger.new(STDOUT)
+            request(*proxy_args.compact, &block)
+          end
+
         end
       end
 
